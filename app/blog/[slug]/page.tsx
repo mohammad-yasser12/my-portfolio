@@ -4,12 +4,12 @@ import matter from 'gray-matter';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import 'highlight.js/styles/github-dark.css'; // Code highlighting theme
+import 'highlight.js/styles/github-dark.css';
 
-// --- 1. Get all blog slugs for static generation ---
+const dir = path.join(process.cwd(), 'content/projects');
+
+// --- 1. Generate project slugs ---
 export async function generateStaticParams() {
-  const dir = path.join(process.cwd(), 'content/blog');
-
   if (!fs.existsSync(dir)) {
     return [];
   }
@@ -23,17 +23,13 @@ export async function generateStaticParams() {
     }));
 }
 
-// --- 2. Fetch the markdown content for a given slug ---
+// --- 2. Read project file ---
 async function getProject(slug: string) {
   if (!slug) {
     throw new Error("Missing slug");
   }
 
-  const filePath = path.join(
-    process.cwd(),
-    'content/projects',
-    `${slug}.md`
-  );
+  const filePath = path.join(dir, `${slug}.md`);
 
   if (!fs.existsSync(filePath)) {
     throw new Error(`Project not found: ${slug}`);
@@ -45,19 +41,13 @@ async function getProject(slug: string) {
   return { frontmatter: data, content };
 }
 
-// --- 3. The page component ---
+// --- 3. Page ---
 export default async function ProjectPage({
   params,
 }: {
-  params: { slug: string | string[] };
+  params: { slug: string };
 }) {
-  const slug = Array.isArray(params.slug)
-    ? params.slug[0]
-    : params.slug;
-
-  if (!slug) {
-    throw new Error("Invalid slug");
-  }
+  const slug = params.slug;
 
   const { frontmatter, content } = await getProject(slug);
 
