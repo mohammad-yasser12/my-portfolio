@@ -26,8 +26,13 @@ async function getProject(slug: string) {
 }
 
 // --- Project detail page ---
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const { slug } = await params;
+export default async function ProjectPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const slug = params.slug;
+
   const { frontmatter, content } = await getProject(slug);
 
   return (
@@ -38,11 +43,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
         {/* Project metadata (tech stack, date, live link, github) */}
         <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mt-2">
-          {frontmatter.tech && (
-            <span>
-              <strong>Tech:</strong> {frontmatter.tech.join(', ')}
-            </span>
-          )}
+        {Array.isArray(frontmatter.tech) && (
+  <span>
+    <strong>Tech:</strong> {frontmatter.tech.join(', ')}
+  </span>
+)}
           {frontmatter.date && <span>• {frontmatter.date}</span>}
         </div>
         <div className="flex gap-4 mt-4">
