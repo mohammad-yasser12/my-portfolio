@@ -8,4 +8,4 @@ live: https://demo.com
 
 # Portfolio Project
 
-My portfolio project built with Next.js 🚀
+My portfolio projects built with Next.js 🚀
