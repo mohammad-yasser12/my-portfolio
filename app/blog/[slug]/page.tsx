@@ -9,18 +9,31 @@ import 'highlight.js/styles/github-dark.css'; // Code highlighting theme
 // --- 1. Get all blog slugs for static generation ---
 export async function generateStaticParams() {
   const postsDirectory = path.join(process.cwd(), 'content/blog');
+
+  if (!fs.existsSync(postsDirectory)) {
+    return [];
+  }
+
   const filenames = fs.readdirSync(postsDirectory);
 
-  return filenames.map((filename) => ({
-    slug: filename.replace(/\.md$/, ''),
-  }));
+  return filenames
+    .filter((file) => file.endsWith('.md'))
+    .map((filename) => ({
+      slug: filename.replace(/\.md$/, ''),
+    }));
 }
 
 // --- 2. Fetch the markdown content for a given slug ---
 async function getPost(slug: string) {
   const filePath = path.join(process.cwd(), 'content/blog', `${slug}.md`);
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Blog post not found: ${slug}`);
+  }
+
   const fileContents = fs.readFileSync(filePath, 'utf8');
   const { data, content } = matter(fileContents);
+
   return { frontmatter: data, content };
 }
 
@@ -32,12 +45,20 @@ export default async function BlogPost({
 }) {
   const slug = params.slug;
 
+  if (!slug) {
+    throw new Error("Missing slug");
+  }
+
   const { frontmatter, content } = await getPost(slug);
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-12">
       <h1>{frontmatter.title}</h1>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeHighlight]}
+      >
         {content}
       </ReactMarkdown>
     </article>
