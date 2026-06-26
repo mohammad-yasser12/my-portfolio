@@ -4,63 +4,29 @@ import matter from 'gray-matter';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/github-dark.css'; // optional for code highlighting
+import Image from 'next/image';
 
-const dir = path.join(process.cwd(), 'content/projects');
 
-// --- 1. Generate project slugs ---
+const dir = path.join(process.cwd(), 'content/blog');
+
 export async function generateStaticParams() {
-  if (!fs.existsSync(dir)) {
-    return [];
-  }
+  if (!fs.existsSync(dir)) return [];
 
   const files = fs.readdirSync(dir);
 
   return files
-    .filter((f) => f.endsWith('.md'))
-    .map((file) => ({
-      slug: file.replace(/\.md$/, ''),
+    .filter(file => file.endsWith('.md'))
+    .map(file => ({
+      slug: file.replace('.md', ''),
     }));
 }
 
-// --- 2. Read project file ---
-async function getProject(slug: string) {
-  if (!slug) {
-    throw new Error("Missing slug");
-  }
-
+async function getPost(slug: string) {
   const filePath = path.join(dir, `${slug}.md`);
-
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Project not found: ${slug}`);
-  }
 
   const fileContents = fs.readFileSync(filePath, 'utf8');
   const { data, content } = matter(fileContents);
 
   return { frontmatter: data, content };
-}
-
-// --- 3. Page ---
-export default async function ProjectPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const slug = params.slug;
-
-  const { frontmatter, content } = await getProject(slug);
-
-  return (
-    <article>
-      <h1>{frontmatter.title}</h1>
-
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
-      >
-        {content}
-      </ReactMarkdown>
-    </article>
-  );
 }
