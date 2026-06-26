@@ -1,23 +1,24 @@
-// app/api/contact/route.ts
-import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(request: Request) {
-  try {
-    const { name, email, message } = await request.json();
+export async function POST(req: Request) {
+  const { name, email, message } = await req.json();
 
+  try {
     await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'your-email@example.com',
-      subject: `Portfolio Contact from ${name}`,
-      text: `From: ${email}\n\n${message}`,
+      from: "Portfolio <onboarding@resend.dev>",
+      to: "mohammadyasser.dev@gmail.com",
+      subject: "New Contact Message",
+      html: `
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Message:</b> ${message}</p>
+      `,
     });
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return Response.json({ error: "Failed to send email" }, { status: 500 });
   }
 }
