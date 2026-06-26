@@ -25,8 +25,33 @@ export async function generateStaticParams() {
 async function getPost(slug: string) {
   const filePath = path.join(dir, `${slug}.md`);
 
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Blog post not found: ${slug}`);
+  }
+
   const fileContents = fs.readFileSync(filePath, 'utf8');
   const { data, content } = matter(fileContents);
 
   return { frontmatter: data, content };
+}
+
+export default async function Page({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { frontmatter, content } = await getPost(params.slug);
+
+  return (
+    <article className="max-w-3xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-4">{frontmatter.title}</h1>
+
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeHighlight]}
+      >
+        {content}
+      </ReactMarkdown>
+    </article>
+  );
 }
