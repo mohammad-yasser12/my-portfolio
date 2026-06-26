@@ -46,7 +46,7 @@ export default async function BlogPost({
   const slug = params.slug;
 
   if (!slug) {
-    throw new Error("Missing slug");
+    throw new Error("Missing slugs");
   }
 
   const { frontmatter, content } = await getPost(slug);
