@@ -8,7 +8,7 @@ import 'highlight.js/styles/github-dark.css'; // Code highlighting theme
 
 // --- 1. Get all blog slugs for static generation ---
 export async function generateStaticParams() {
-  const dir = path.join(process.cwd(), 'content/projects');
+  const dir = path.join(process.cwd(), 'content/blog');
 
   if (!fs.existsSync(dir)) {
     return [];
