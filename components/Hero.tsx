@@ -1,4 +1,4 @@
-// components/Hero.tsx
+
 'use client';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -6,7 +6,7 @@ import Image from 'next/image';
 export default function Hero() {
   return (
     <section className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
-      {/* Profile Photo */}
+    
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
