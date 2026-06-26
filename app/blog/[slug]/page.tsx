@@ -8,27 +8,35 @@ import 'highlight.js/styles/github-dark.css'; // Code highlighting theme
 
 // --- 1. Get all blog slugs for static generation ---
 export async function generateStaticParams() {
-  const postsDirectory = path.join(process.cwd(), 'content/blog');
+  const dir = path.join(process.cwd(), 'content/projects');
 
-  if (!fs.existsSync(postsDirectory)) {
+  if (!fs.existsSync(dir)) {
     return [];
   }
 
-  const filenames = fs.readdirSync(postsDirectory);
+  const files = fs.readdirSync(dir);
 
-  return filenames
-    .filter((file) => file.endsWith('.md'))
-    .map((filename) => ({
-      slug: filename.replace(/\.md$/, ''),
+  return files
+    .filter((f) => f.endsWith('.md'))
+    .map((file) => ({
+      slug: file.replace(/\.md$/, ''),
     }));
 }
 
 // --- 2. Fetch the markdown content for a given slug ---
-async function getPost(slug: string) {
-  const filePath = path.join(process.cwd(), 'content/blog', `${slug}.md`);
+async function getProject(slug: string) {
+  if (!slug) {
+    throw new Error("Missing slug");
+  }
+
+  const filePath = path.join(
+    process.cwd(),
+    'content/projects',
+    `${slug}.md`
+  );
 
   if (!fs.existsSync(filePath)) {
-    throw new Error(`Blog post not found: ${slug}`);
+    throw new Error(`Project not found: ${slug}`);
   }
 
   const fileContents = fs.readFileSync(filePath, 'utf8');
@@ -38,21 +46,23 @@ async function getPost(slug: string) {
 }
 
 // --- 3. The page component ---
-export default async function BlogPost({
+export default async function ProjectPage({
   params,
 }: {
-  params: { slug: string };
+  params: { slug: string | string[] };
 }) {
-  const slug = params.slug;
+  const slug = Array.isArray(params.slug)
+    ? params.slug[0]
+    : params.slug;
 
   if (!slug) {
-    throw new Error("Missing slugs");
+    throw new Error("Invalid slug");
   }
 
-  const { frontmatter, content } = await getPost(slug);
+  const { frontmatter, content } = await getProject(slug);
 
   return (
-    <article className="max-w-3xl mx-auto px-6 py-12">
+    <article>
       <h1>{frontmatter.title}</h1>
 
       <ReactMarkdown
